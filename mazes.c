@@ -16,52 +16,72 @@
 #define E 1
 #define S 2
 #define W 3
+#define ALL_WALLS 0
+#define REMEMBER_WALLS 1
+#define NO_WALLS 2
 
-void draw_maze(int nrows, int ncols, int maze[ROW][COL],int x,int y){
-    
-    char symbols[2];
-    symbols[OPEN]=   ' ';
-    symbols[CLOSED]= 'O';
+void draw_maze(int n_rows, int n_columns, int maze[ROW][COL],int x,int y,int display_mode,int visibility_matrix[ROW][COL])
+{
+    if(display_mode!=NO_WALLS)
+    {
+      
+        char symbols[2];
+        symbols[OPEN]=   ' ';
+        symbols[CLOSED]= 'O';
 
+        int isVisible = 1;
 
-
-    
-    for(int k = 0;k<ROW+2;k++){
-            printf("%c ",symbols[CLOSED]);
-        }
-        printf("\n");
-        for(int i = 0;i<COL;i++){
-            
-            //printf("|%d|",i);
-            printf("%c ",symbols[CLOSED]);
-            for(int k = 0;k<ROW;k++){
-                if(i==y && k==x){
-                    printf("%c ",'P');
-                }
-                else if(k==ROW-1 && i==COL-1){
-                    printf("G ");
-                }
-                else{
-
-                    printf("%c ",symbols[maze[k][i]]);
-                }
-                
-                //printf("%d",maze[i][k]);
+        
+        for(int k = 0;k<ROW+2;k++){
+                printf("%c ",symbols[CLOSED]);
             }
-            printf("%c ",symbols[CLOSED]);
             printf("\n");
+            for(int i = 0;i<COL;i++){
+                
+                
+                //printf("|%d|",i);
+                printf("%c ",symbols[CLOSED]);
+                for(int k = 0;k<ROW;k++){
 
-            
+                    if(display_mode==REMEMBER_WALLS)
+                    {
+                        isVisible=visibility_matrix[i][k];
+                    }
 
-    }
-    for(int k = 0;k<ROW+2;k++){
-            printf("%c ",symbols[CLOSED]);
+                    if(i==y && k==x){
+                        printf("%c ",'P');
+                    }
+                    else if(k==ROW-1 && i==COL-1){
+                        printf("G ");
+                    }
+                    else{
+                        if(isVisible==1)
+                        {
+                            printf("%c ",symbols[maze[k][i]]);
+                        }
+                        else{
+                            printf("%c ",symbols[0]);
+                        }
+                        
+                    }
+                    
+                    //printf("%d",maze[i][k]);
+                }
+                printf("%c ",symbols[CLOSED]);
+                printf("\n");
+
+                
+
         }
-        printf("\n");
+        for(int k = 0;k<ROW+2;k++){
+                printf("%c ",symbols[CLOSED]);
+            }
+            printf("\n");
+    }
 }
 
 
-void get_walls(int nrows, int ncols, int maze[ROW][COL], int *dirs,int x,int y)
+void get_walls(int n_rows, int n_columns, int maze[ROW][COL], int *dirs,int x,int y)
 {
     //North
     if(y==0){
@@ -72,7 +92,7 @@ void get_walls(int nrows, int ncols, int maze[ROW][COL], int *dirs,int x,int y)
     }
 
     //South
-    if(y==nrows){
+    if(y==n_rows){
         dirs[S]=CLOSED;
     }
     else{
@@ -80,7 +100,7 @@ void get_walls(int nrows, int ncols, int maze[ROW][COL], int *dirs,int x,int y)
     }
 
     //East
-    if(x==ncols){
+    if(x==n_columns){
         dirs[E]=CLOSED;
     }
     else{
@@ -97,8 +117,83 @@ void get_walls(int nrows, int ncols, int maze[ROW][COL], int *dirs,int x,int y)
     
 }
 
+void update_visibility_matrix(int n_rows, int n_columns, int visibility_matrix[ROW][COL], int x,int y)
+{
+    
+    /*1 2*/
+    /* X */ /*Numbering goes clockwise from top-left*/
+    /*0 3*/
+
+    /*Initially assume all diagonals are drawable*/
+    int drawable_places[4]={1,1,1,1};
+
+
+    if(x==0)
+    {
+        drawable_places[1]=0;
+        drawable_places[0]=0;
+    }
+    else if(x==n_columns)
+    {
+        drawable_places[2]=0;
+        drawable_places[3]=0;
+    }
+    if(y==0)
+    {
+        drawable_places[1]=0;
+        drawable_places[2]=0;
+    }
+    else if(x==n_rows)
+    {
+        drawable_places[3]=0;
+        drawable_places[0]=0;
+    }
+
+    if(drawable_places[0]==1)
+    {
+        visibility_matrix[y-1][x-1]=1;
+    }
+    if(drawable_places[1]==1)
+    {
+        visibility_matrix[y+1][x-1]=1;
+    }
+    if(drawable_places[2]==1)
+    {
+        visibility_matrix[y+1][x+1]=1;
+    }
+    if(drawable_places[3]==1)
+    {
+        visibility_matrix[y-1][x+1]=1;
+    }
+    
+    
+    visibility_matrix[y][x]=1;
+    if(x>0)
+    {
+        visibility_matrix[y][x-1]=1;
+    }
+    if(x<n_columns)
+    {
+        visibility_matrix[y][x+1]=1;
+    }
+    if(y>0)
+    {
+        visibility_matrix[y-1][x]=1;
+    }
+    if(y<n_rows)
+    {
+        visibility_matrix[y+1][x]=1;
+    }
+    }
+
 int main(){
     
+    int display_mode = NO_WALLS;
+
+    printf("To see the whole maze, enter V.\nTo see only the parts of the maze you have already visited, enter R.\nTo see no walls other than those next to you, enter C\n");
+
+    int visibility_matrix[ROW][COL] = {0};
+
     /*
     int maze[ROW][COL]= {{1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
                          {1, 0, 1, 0, 1, 1, 1, 0, 1, 1 },
@@ -173,7 +268,15 @@ int main(){
     while(player_input!='q')
     {
         printf("\n");
-        draw_maze(ROW, COL,maze, x, y);
+
+        update_visibility_matrix(ROW, COL, visibility_matrix, x, y);
+
+        
+        draw_maze(ROW, COL,maze, x, y,display_mode,visibility_matrix);
+
+        
+
+        
         
         if(x==goal[0] && y==goal[1])
         {
@@ -233,6 +336,18 @@ int main(){
             else{
                 printf("\nCannot proceed West\n");
             }
+        }
+        else if(player_input=='v'||player_input=='V')
+        {
+            display_mode=ALL_WALLS;
+        }
+        else if(player_input=='r'||player_input=='R')
+        {
+            display_mode=REMEMBER_WALLS;
+        }
+        else if(player_input=='c'||player_input=='C')
+        {
+            display_mode=NO_WALLS;
         }
 
     }

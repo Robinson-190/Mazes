@@ -190,7 +190,7 @@ int main(){
     
     int display_mode = NO_WALLS;
 
-    printf("To see the whole maze, enter V.\nTo see only the parts of the maze you have already visited, enter R.\nTo see no walls other than those next to you, enter C\n");
+    printf("To see the whole maze, enter A.\nTo see only the parts of the maze you have already visited, enter R.\nTo see no walls other than those next to you, enter C\n");
 
     int visibility_matrix[ROW][COL] = {0};
 
@@ -337,7 +337,7 @@ int main(){
                 printf("\nCannot proceed West\n");
             }
         }
-        else if(player_input=='v'||player_input=='V')
+        else if(player_input=='a'||player_input=='A')
         {
             display_mode=ALL_WALLS;
         }

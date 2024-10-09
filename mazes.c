@@ -1,9 +1,4 @@
 #include "stdio.h"
-#include "stdlib.h"
-#include "stdarg.h"
-#include "math.h"
-#include "ctype.h"
-#include "string.h"
 
 //Maze Generator on dCode.fr [online website], retrieved on 2024-09-12, 
 
